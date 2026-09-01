@@ -7,7 +7,7 @@ Participants in the challenge are expected to provide trained model checkpoints 
 
 The chart below shows the performance of the daily regression base model $\mathcal{M}_{\mathrm{base}}$ for US stocks using a 252-day training window and a 21-day lookforward horizon. Note that this model is only trained using the price information and does not benefit from the auxiliary context $\mathcal{A}_i(t)$, therefore, we have:
 
-$\hat{Y}^{\mathrm{base}}_i = \mathcal{M}_{\mathrm{base}}(X_i).$
+$$\hat{Y}^{\mathrm{base}}_i = \mathcal{M}_{\mathrm{base}}(X_i).$$
 
 ![Regression residual performance for daily US stocks](workspace/linear_trend/regression_residual_daily_252_21_US_Stocks.png)
 
