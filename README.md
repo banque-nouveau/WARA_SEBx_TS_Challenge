@@ -61,4 +61,4 @@ The datasets will be downloaded automatically. Make sure to extract the zip file
 
 Use `pyproject.toml` file to install the dependencies inside your virtual env. You need to run:
 
-`pip install -e .
+`pip install -e .`
