@@ -6,6 +6,7 @@ from torchmetrics import MeanAbsoluteError
 
 from amgm import config as amgm_config
 from amgm.models.mlp import MLPModel_residual
+from amgm.utils.residual_bins import residual_bins_21d as _residual_bins_21d
 
 def get_trainer_cfg():
     output_size = 1
@@ -94,24 +95,6 @@ def _residual_bins_63d(residuals):
         'gt50':    np.where(50 <= residuals)[0],
     }
 
-def _residual_bins_21d(residuals):
-    """Bins for residual-based balancing when window_size_test == 21 (1-month stocks)."""
-    return {
-        'lt20':    np.where(residuals <= -20)[0],
-        'n10to20': np.where((-20 < residuals) & (residuals < -10))[0],
-        'n5to10': np.where((-10 <= residuals) & (residuals < -5))[0],
-        'n2to5': np.where((-5 <= residuals) & (residuals < -2))[0],
-        'n1to2': np.where((-2 <= residuals) & (residuals < -1))[0],
-        'n0to1':  np.where((-1 <= residuals) & (residuals < 0))[0],
-        'zero':    np.where(residuals == 0)[0],
-        '0to1':   np.where((0 < residuals) & (residuals <= 1))[0],
-        '1to2':  np.where((1 < residuals) & (residuals <= 2))[0],
-        '2to5':  np.where((2 < residuals) & (residuals <= 5))[0],
-        '5to10':  np.where((5 < residuals) & (residuals <= 10))[0],
-        '10to20':  np.where((10 < residuals) & (residuals < 20))[0],
-        'gt20':    np.where(20 <= residuals)[0],
-    }
-    
 def _residual_bins_5d(residuals):
     """Bins for residual-based balancing when window_size_test == 5 (1-week stocks)."""
     return {

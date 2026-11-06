@@ -107,7 +107,6 @@ def load_or_instantiate(cfg: dict[str, Any], name_prefix: str, cache_dir: Path, 
         with data_file.open("rb") as f:
             obj = pickle.load(f)
         return obj, data_file
-
     obj = instantiate(cfg)
 
     if save:
@@ -120,3 +119,6 @@ def load_or_instantiate(cfg: dict[str, Any], name_prefix: str, cache_dir: Path, 
         os.replace(meta_tmp_file, meta_file)
 
     return obj, data_file
+
+
+from .calculate_metrics import calculate_metrics

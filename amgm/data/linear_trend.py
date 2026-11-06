@@ -51,6 +51,7 @@ class LinearTrendDataset(BaseAMData, Dataset):
         trend_value_col: str = "ClAdjLoc",
         feature_names: list[str] = ["ClAdjLoc"],
         normalization: dict[str, str] = None,
+        normalize_input_features: bool = True,
         balancing=None,                 # "None", "smallest", "residual-based", etc.
         balancing_bins=None,            # Optional callable (residuals: np.ndarray) -> dict[str, np.ndarray of indices], for residual-based balancing.
         balancing_target_count=None,    # Optional int, target samples per bin for residual-based balancing.
@@ -70,6 +71,7 @@ class LinearTrendDataset(BaseAMData, Dataset):
             end_date_test (str): End date for linear-trend fit testing (+ label generation) in 'YYYY-MM-DD' format.
                 The fit-testing start date is the end date of the linear-trend training set.
 
+            window_size_train (int, optional): Number of trading days of features/trend-fitting per sample for training. Defaults to 365.
             window_size_test (int, optional): Number of trading days of features/trend-fitting per sample. Defaults to 365.
             time_bar (str, optional): Time bar frequency, 'daily', 'weekly', or 'monthly'. Defaults to "daily".
                 Choosing any value other than "daily" will resample the data to the specified frequency.
@@ -196,7 +198,7 @@ class LinearTrendDataset(BaseAMData, Dataset):
         if balancing is not None:
             self.balanced_subsample_(self.balancing)
 
-        if normalization is not None:
+        if normalization is not None and normalize_input_features:
             self.normalize_features_(self.features, self.issue_ids, self.feature_names)
 
         self.log.info(f"{split.capitalize()} shape={self.features.shape}")

@@ -1,7 +1,7 @@
 # WARA SEBx TS Challenge
 This repository contains an example base model for predicting the maximum relative structural deviation (the “Max Deviation %”) of an asset’s price from its 95% statistical confidence interval (CI) over a lookforward horizon.
 
-Participants in the challenge are expected to provide trained model checkpoints in the repository structure used by the training pipeline so that the evaluation script `experiments/linear_trend/test_regression_residual_ensemble.py` can load them, aggregate the ensemble predictions, and reproduce the reported out-of-sample validation metrics.
+The evaluation script `experiments/linear_trend/test_regression_residual_ensemble.py` loads base model ckeckpoints, aggregate the ensemble predictions, and reproduce the reported average out-of-sample validation metrics.
 
 ## Example model output
 
@@ -32,7 +32,7 @@ From the 10 Monte Carlo ensemble runs, the model achieved the following validati
 
 This corresponds to an ensemble-average residual-regression performance of roughly **52.7 MSE** and **5.8 MAE** on the validation set, with moderate variation across ensemble runs.
 
-## Available datasets
+## Available Datasets
 
 The two primary datasets are available:
 
@@ -62,3 +62,40 @@ The datasets will be downloaded automatically. Make sure to extract the zip file
 Use `pyproject.toml` file to install the dependencies inside your virtual env. You need to run:
 
 `pip install -e .`
+
+## Submission Requirements
+
+The leaderboard evaluation uses `predict_submission` and `evaluate_submission` in [evaluate.py](experiments/linear_trend/evaluate.py) to generate predictions and score each submission.
+
+**To prepare your submission:**
+
+1. Implement `amgm.models.mymodel.model` in [mymodel.py](amgm/models/mymodel.py).
+   Its constructor must load your model and any required checkpoints.
+2. Implement `predict(inputs)`. It must accept a `PredictionInputs` object
+   defined in [load_test_data.py](amgm/data/load_test_data.py):
+   - `features`: raw adjusted-close price windows of shape `(N, 252, 1)`.
+   - `issue_ids` and `test_dates`: identifiers for the samples, in feature order.
+3. `predict(inputs)` must return one numeric prediction per sample, **in input order**, as an array of
+   shape `(N,)` or `(N, 1)`. Predictions must be in residual percentages.
+
+The evaluator compares predictions with the maximum residual percentages over the following 21 trading days. Targets are not passed to `predict`. The baseline model normalizes each price window inside `predict`; participants may use their own preprocessing.
+
+### Local testing guide
+
+To test your code locally, run:
+
+```bash
+python -m experiments.linear_trend.evaluate
+```
+
+The default directory `Data/data-20250901` must contain a tab-separated `security_data.csv` or `security_data.txt` with `IssueId`, `Date` and `ClAdjLoc` columns. By default, the loader uses 2018-12-31 to 2020-12-31 and samples 500 issue IDs with seed 1. Targets are not balanced.
+
+The final JSON reports MSE, RMSE, sample-weighted MAE, MAE per bin, equally weighted average MAE across populated bins, and sample count. Empty bins are reported as `null`.
+
+To check your model's submission interface using the local dataset, run:
+
+```bash
+python -m unittest discover -s tests -p test_submission_evaluation.py -v
+```
+
+The test calls your actual model with `PredictionInputs` and checks prediction shape and finite numeric values; it does not prescribe checkpoint formats, preprocessing or other data sources. By default it uses the same data and selection settings as the evaluator.
